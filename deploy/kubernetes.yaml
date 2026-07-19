@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-coordinator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ci-coordinator
+  template:
+    metadata:
+      labels:
+        app: ci-coordinator
+    spec:
+      containers:
+        - name: coordinator
+          image: ci-orchestrator-coordinator:local
+          args: ["-address", ":8090", "-lease-duration", "10s"]
+          ports:
+            - containerPort: 8090
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-coordinator
+spec:
+  selector:
+    app: ci-coordinator
+  ports:
+    - port: 8090
+      targetPort: 8090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-worker
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: ci-worker
+  template:
+    metadata:
+      labels:
+        app: ci-worker
+    spec:
+      containers:
+        - name: worker
+          image: ci-orchestrator-worker:local
+          args: ["-coordinator", "http://ci-coordinator:8090", "-worker-id", "$(POD_NAME)"]
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
