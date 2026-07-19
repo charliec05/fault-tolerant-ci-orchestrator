@@ -1,0 +1,13 @@
+{
+  "recorded_at": "2026-07-19",
+  "platform": "Darwin arm64",
+  "command": "go run ./cmd/simulator -tasks 1000 -workers 32 -fault-every 0",
+  "tasks": 1000,
+  "workers": 32,
+  "injected_worker_losses": 0,
+  "task_attempts": 1000,
+  "final_status": "succeeded",
+  "elapsed_ms": 84.942,
+  "serial_estimate_ms": 1000,
+  "parallel_speedup": 11.773
+}
